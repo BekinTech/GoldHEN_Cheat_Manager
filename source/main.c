@@ -19,10 +19,11 @@
 #include <orbis/libkernel.h>
 #include "cheats.h"
 
+#define SUCCESS 	1
 #define HTTP_SUCCESS 	1
 #define HTTP_FAILED	 	0
 #define HTTP_USER_AGENT "Mozilla/5.0 (PLAYSTATION 4; 1.00)"
-
+#include <stdarg.h>
 inline static void KernelPrintOut(const char* FMT, ...)
 {
     char MessageBuf[1024];
@@ -108,7 +109,7 @@ int curlDownloadFile(const char* url, const char* filename)
 
 static void terminate(void)
 {
-	LOG("Exiting...");
+	KernelPrintOut("Exiting...");
 
 	terminate_jbc();
 	sceSystemServiceLoadExec("exit", NULL);
@@ -119,19 +120,19 @@ static int initInternal(void)
     // load common modules
     int ret = sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_SYSTEM_SERVICE);
     if (ret != SUCCESS) {
-        LOG("load module failed: SYSTEM_SERVICE (0x%08x)\n", ret);
+        KernelPrintOut("load module failed: SYSTEM_SERVICE (0x%08x)\n", ret);
         return 0;
     }
 
     ret = sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_USER_SERVICE);
     if (ret != SUCCESS) {
-        LOG("load module failed: USER_SERVICE (0x%08x)\n", ret);
+        KernelPrintOut("load module failed: USER_SERVICE (0x%08x)\n", ret);
         return 0;
     }
 
     ret = sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_SAVE_DATA);
     if (ret != SUCCESS) {
-        LOG("load module failed: SAVE_DATA (0x%08x)\n", ret);
+        KernelPrintOut("load module failed: SAVE_DATA (0x%08x)\n", ret);
         return 0;
     }
 
@@ -142,7 +143,7 @@ static int initInternal(void)
 /*
 	Program start
 */
-s32 main(s32 argc, const char* argv[])
+int main(int argc, const char* argv[])
 {
 
 
