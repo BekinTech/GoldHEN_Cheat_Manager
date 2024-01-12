@@ -449,14 +449,7 @@ s32 main(s32 argc, const char* argv[])
 	dbglogger_init();
 #endif
 
-	// Initialize SDL functions
-	LOG("Initializing SDL");
 
-	if (SDL_Init(SDL_INIT_VIDEO) != SUCCESS)
-	{
-		LOG("Failed to initialize SDL: %s", SDL_GetError());
-		return (-1);
-	}
 
 	initInternal();
 	http_init();
@@ -479,29 +472,11 @@ s32 main(s32 argc, const char* argv[])
 		return audio;
 	}
 
-	// Create a window context
-	LOG( "Creating a window");
-	window = SDL_CreateWindow("main", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-	if (!window) {
-		LOG("SDL_CreateWindow: %s", SDL_GetError());
-		return (-1);
-	}
-
-	// Create a renderer (OpenGL ES2)
-	renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (!renderer) {
-		LOG("SDL_CreateRenderer: %s", SDL_GetError());
-		return (-1);
-	}
 
 	// Initialize jailbreak
 	if (!initialize_jbc())
 		terminate();
 
-	mkdirs(GOLDCHEATS_DATA_PATH);
-	mkdirs(GOLDCHEATS_LOCAL_CACHE);
-	mkdirs(GOLDCHEATS_PATCH_PATH "settings/");
-	
 	// Load freetype
 	if (sceSysmoduleLoadModule(ORBIS_SYSMODULE_FREETYPE_OL) < 0)
 	{
@@ -526,93 +501,16 @@ s32 main(s32 argc, const char* argv[])
 	// register exit callback
 	atexit(terminate);
 	
-	// Load texture
-	if (!LoadTextures_Menu())
-	{
-		LOG("Failed to load menu textures!");
-		return (-1);
-	}
-
-#ifndef DEBUG_ENABLE_LOG
-	// Splash screen logo (fade-in)
-	drawSplashLogo(1);
-#endif
+	
 curlDownloadFile("https://download.samplelib.com/mp4/sample-30s.mp4", "/data/GoldHEN/plugins/test.mp4");
    
-	// Load application settings
-	load_app_settings(&gcm_config);
+	 bool finished = false;
 
-	// Unpack application data on first run
-	if (strncmp(gcm_config.app_ver, GOLDCHEATS_VERSION, sizeof(gcm_config.app_ver)) != 0)
-	{
-		if (gcm_config.overwrite && extract_zip(GOLDCHEATS_APP_PATH "misc/" LOCAL_TEMP_ZIP, GOLDCHEATS_PATH))
-		{
-			char *cheat_ver = readTextFile(GOLDCHEATS_DATA_PATH "misc/cheat_ver.txt", NULL);
-			char *patch_ver = readTextFile(GOLDCHEATS_PATCH_PATH "misc/patch_ver.txt", NULL);
-			show_message("Successfully installed local application data:\n\n- %s- %s", cheat_ver, patch_ver);
-			free(cheat_ver);
-			free(patch_ver);
-		}
+ // Play the song in a loop
+ while (!finished)
+ {
 
-		strncpy(gcm_config.app_ver, GOLDCHEATS_VERSION, sizeof(gcm_config.app_ver));
-		save_app_settings(&gcm_config);
-	}
-
-	// Setup font
-	SetExtraSpace(-1);
-	SetCurrentFont(font_console_regular);
-
-	registerSpecialChars();
-	initMenuOptions();
-#ifndef DEBUG_ENABLE_LOG
-	// Splash screen logo (fade-out)
-	drawSplashLogo(-1);
-#endif
-	SDL_DestroyTexture(menu_textures[goldhen_png_index].texture);
-	
-	//Set options
-	update_callback(!gcm_config.update);
-
-	SDL_CreateThread(&LoadSounds, "audio_thread", &gcm_config.music);
-#ifndef DEBUG_ENABLE_LOG
-	Draw_MainMenu_Ani();
-#endif
-
-	while (!close_app)
-	{
-#ifdef DEBUG_ENABLE_LOG
-        startFrameTicks = SDL_GetTicks();
-        deltaFrameTicks = startFrameTicks - lastFrameTicks;
-        lastFrameTicks  = startFrameTicks;
-#endif
-		// Clear the canvas
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
-		SDL_RenderClear(renderer);
-		orbisPadUpdate();
-		drawScene();
-
-		// Draw help
-		helpFooter((last_menu_id[menu_id] == MENU_UPDATE_CHEATS) ? MENU_CODE_OPTIONS : menu_id);
-
-#ifdef DEBUG_ENABLE_LOG
-		// Calculate FPS and ms/frame
-		SetFontColor(APP_FONT_COLOR | 0xFF, 0);
-		DrawFormatString(50, 960, "FPS: %d", (1000 / deltaFrameTicks));
-#endif
-		// Propagate the updated window to the screen
-		SDL_RenderPresent(renderer);
-	}
-
-#ifndef DEBUG_ENABLE_LOG
-	if (gcm_config.doAni)
-		drawEndLogo();
-#endif
-
-    // Cleanup resources
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    // Stop all SDL sub-systems
-    SDL_Quit();
+ }
 	http_end();
 	orbisPadFinish();
 	return 0;
