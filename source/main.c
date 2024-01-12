@@ -33,9 +33,12 @@
 #include "dr_mp3.h"
 #include <curl/curl.h>
 #include <orbis/NetCtl.h>
+#include <orbis/libkernel.h>
 
 
-
+#define HTTP_SUCCESS 	1
+#define HTTP_FAILED	 	0
+#define HTTP_USER_AGENT "Mozilla/5.0 (PLAYSTATION 4; 1.00)"
 
 inline static void KernelPrintOut(const char* FMT, ...)
 {
