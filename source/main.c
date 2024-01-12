@@ -79,7 +79,7 @@ int curlDownloadFile(const char* url, const char* filename)
 
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	// Set user agent string
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, HTTP_USER_AGENT);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, HTTP_USER_AGENT);
 	// not sure how to use this when enabled
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 	// not sure how to use this when enabled
@@ -100,22 +100,6 @@ int curlDownloadFile(const char* url, const char* filename)
 	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
 	// request using SSL for the FTP transfer if available
 	curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_TRY);
-
-	// check for proxy settings
-	memset(&proxy_info, 0, sizeof(OrbisNetCtlInfo));
-	sceNetCtlGetInfo(ORBIS_NET_CTL_INFO_HTTP_PROXY_CONFIG, &proxy_info);
-
-	if (proxy_info.http_proxy_config)
-	{
-		memset(&proxy_info, 0, sizeof(OrbisNetCtlInfo));
-		sceNetCtlGetInfo(ORBIS_NET_CTL_INFO_HTTP_PROXY_SERVER, &proxy_info);
-		curl_easy_setopt(curl, CURLOPT_PROXY, proxy_info.http_proxy_server);
-		curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-
-		memset(&proxy_info, 0, sizeof(OrbisNetCtlInfo));
-		sceNetCtlGetInfo(ORBIS_NET_CTL_INFO_HTTP_PROXY_PORT, &proxy_info);
-		curl_easy_setopt(curl, CURLOPT_PROXYPORT, proxy_info.http_proxy_port);
-	}
 
 
 	// Perform the request
