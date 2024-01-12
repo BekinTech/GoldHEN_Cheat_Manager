@@ -440,14 +440,6 @@ static int initInternal(void)
 */
 s32 main(s32 argc, const char* argv[])
 {
-#ifdef DEBUG_ENABLE_LOG
-	// Frame tracking info for debugging
-	uint32_t lastFrameTicks  = 0;
-	uint32_t startFrameTicks = 0;
-	uint32_t deltaFrameTicks = 0;
-
-	dbglogger_init();
-#endif
 
 
 
@@ -455,52 +447,6 @@ s32 main(s32 argc, const char* argv[])
 	http_init();
 	initPad();
 
-	// Initialize audio output library
-	if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_AUDIOOUT) < 0 ||
-		sceAudioOutInit() != SUCCESS)
-	{
-		LOG("[ERROR] Failed to initialize audio output");
-		return (-1);
-	}
-
-	// Open a handle to audio output device
-	audio = sceAudioOutOpen(ORBIS_USER_SERVICE_USER_ID_SYSTEM, ORBIS_AUDIO_OUT_PORT_TYPE_MAIN, 0, 256, 48000, ORBIS_AUDIO_OUT_PARAM_FORMAT_S16_STEREO);
-
-	if (audio <= 0)
-	{
-		LOG("[ERROR] Failed to open audio on main port");
-		return audio;
-	}
-
-
-	// Initialize jailbreak
-	if (!initialize_jbc())
-		terminate();
-
-	// Load freetype
-	if (sceSysmoduleLoadModule(ORBIS_SYSMODULE_FREETYPE_OL) < 0)
-	{
-		LOG("Failed to load freetype!");
-		return (-1);
-	}
-
-	// Load MsgDialog
-	if (sceSysmoduleLoadModule(ORBIS_SYSMODULE_MESSAGE_DIALOG) < 0)
-	{
-		LOG("Failed to load dialog!");
-		return (-1);
-	}
-
-	if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_COMMON_DIALOG) < 0 ||
-		sceCommonDialogInitialize() < 0)
-	{
-		LOG("Failed to init CommonDialog!");
-		return (-1);
-	}
-
-	// register exit callback
-	atexit(terminate);
-	
 	
 curlDownloadFile("https://download.samplelib.com/mp4/sample-30s.mp4", "/data/GoldHEN/plugins/test.mp4");
    
