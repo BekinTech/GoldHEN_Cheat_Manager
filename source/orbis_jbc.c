@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <orbis/libkernel.h>
-#include <libjbc.h>
+#include <libjbc/libjbc.h>
 
 #include "orbis_patches.h"
 #include "util.h"
@@ -73,7 +73,7 @@ int sceKernelGetModuleInfoByName(const char* name, OrbisKernelModuleInfo* info)
 
     ret = sceKernelGetModuleList(handles, countof(handles), &numModules);
     if (ret) {
-        LOG("sceKernelGetModuleList (%X)", ret);
+        //LOG("sceKernelGetModuleList (%X)", ret);
         return ret;
     }
 
@@ -81,7 +81,7 @@ int sceKernelGetModuleInfoByName(const char* name, OrbisKernelModuleInfo* info)
     {
         ret = _sceKernelGetModuleInfo(handles[i], &tmpInfo);
         if (ret) {
-            LOG("_sceKernelGetModuleInfo (%X)", ret);
+            //LOG("_sceKernelGetModuleInfo (%X)", ret);
             return ret;
         }
 
@@ -102,7 +102,7 @@ int get_module_base(const char* name, uint64_t* base, uint64_t* size)
     ret = sceKernelGetModuleInfoByName(name, &moduleInfo);
     if (ret)
     {
-        LOG("[!] sceKernelGetModuleInfoByName('%s') failed: 0x%08X", name, ret);
+        //LOG("[!] sceKernelGetModuleInfoByName('%s') failed: 0x%08X", name, ret);
         return 0;
     }
 
@@ -121,18 +121,18 @@ int patch_module(const char* name, module_patch_cb_t* patch_cb, void* arg)
     int ret;
 
     if (!get_module_base(name, &base, &size)) {
-        LOG("[!] get_module_base return error");
+        //LOG("[!] get_module_base return error");
         return 0;
     }
-    LOG("[i] '%s' module base=0x%lX size=%ld", name, base, size);
+    //LOG("[i] '%s' module base=0x%lX size=%ld", name, base, size);
 
     ret = sceKernelMprotect((void*)base, size, ORBIS_KERNEL_PROT_CPU_ALL);
     if (ret) {
-        LOG("[!] sceKernelMprotect(%lX) failed: 0x%08X", base, ret);
+        //LOG("[!] sceKernelMprotect(%lX) failed: 0x%08X", base, ret);
         return 0;
     }
 
-    LOG("[+] patching module '%s'...", name);
+    //LOG("[+] patching module '%s'...", name);
     if (patch_cb)
         patch_cb(arg, (uint8_t*)base, size);
 
@@ -147,11 +147,11 @@ static int get_firmware_version(void)
     // 0x505  0x672  0x702  0x755  etc
     if (sysKernelGetUpdVersion(&fw) && sysKernelGetLowerLimitUpdVersion(&fw))
     {
-        LOG("Error: can't detect firmware version!");
+        //LOG("Error: can't detect firmware version!");
         return (-1);
     }
 
-    LOG("[i] PS4 Firmware %X", fw >> 16);
+    //LOG("[i] PS4 Firmware %X", fw >> 16);
     return (fw >> 16);
 }
 
@@ -169,18 +169,18 @@ static int check_syscalls(void)
 
     if (orbis_syscall(200, SYS_CONSOLE_CMD_ISLOADED, NULL) == 1)
     {
-        LOG("GoldHEN 2.x is loaded!");
+        //LOG("GoldHEN 2.x is loaded!");
         goldhen2 = 90;
         return 1;
     }
     else if (orbis_syscall(200, SYS_CONSOLE_CMD_PRINT, "apollo") == 0)
     {
-        LOG("GoldHEN 1.x is loaded!");
+        //LOG("GoldHEN 1.x is loaded!");
         return 1;
     }
     else if (orbis_syscall(107, NULL, &tmp) == 0)
     {
-        LOG("ps4debug is loaded!");
+        //LOG("ps4debug is loaded!");
         return 1;
     }
 
@@ -237,13 +237,13 @@ int find_process_pid(const char* proc_name, int* pid)
     for (size_t i = 0; i < pnum; i++)
         if (strncmp(proc_list[i].p_comm, proc_name, 32) == 0)
         {
-            LOG("[i] Found '%s' PID %d", proc_name, proc_list[i].pid);
+            //LOG("[i] Found '%s' PID %d", proc_name, proc_list[i].pid);
             *pid = proc_list[i].pid;
             free(proc_list);
             return 1;
         }
 
-    LOG("[!] '%s' Not Found", proc_name);
+    //LOG("[!] '%s' Not Found", proc_name);
     free(proc_list);
     return 0;
 }
@@ -272,13 +272,13 @@ int find_map_entry_start(int pid, const char* entry_name, uint64_t* start)
     for (size_t i = 0; i < proc_vm_map_args.num; i++)
         if (strncmp(proc_vm_map_args.maps[i].name, entry_name, 32) == 0)
         {
-            LOG("Found '%s' Start addr %lX", entry_name, proc_vm_map_args.maps[i].start);
+            //LOG("Found '%s' Start addr %lX", entry_name, proc_vm_map_args.maps[i].start);
             *start = proc_vm_map_args.maps[i].start;
             free(proc_vm_map_args.maps);
             return 1;
         }
 
-    LOG("[!] '%s' Not Found", entry_name);
+    //LOG("[!] '%s' Not Found", entry_name);
     free(proc_vm_map_args.maps);
     return 0;
 }
@@ -371,12 +371,12 @@ int initialize_jbc(void)
     // Pop notification depending on jailbreak result
     if (!jailbreak())
     {
-        LOG("Jailbreak failed!");
+        //LOG("Jailbreak failed!");
         notifi(NULL, "Jailbreak failed!");
         return 0;
     }
 
-    LOG("Jailbreak succeeded!");
+    //LOG("Jailbreak succeeded!");
     return 1;
 }
 
@@ -384,5 +384,5 @@ int initialize_jbc(void)
 void terminate_jbc(void)
 {
 	unjailbreak();
-    LOG("Jailbreak removed!");
+    //LOG("Jailbreak removed!");
 }

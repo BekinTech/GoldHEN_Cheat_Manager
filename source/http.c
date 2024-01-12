@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include <curl/curl.h>
+#include "curl/curl.h"
 #include <orbis/Sysmodule.h>
 
 #include "common.h"
