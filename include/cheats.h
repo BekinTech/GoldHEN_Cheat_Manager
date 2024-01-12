@@ -181,11 +181,11 @@ int extract_zip(const char* zip_file, const char* dest_path);
 int zip_directory(const char* basedir, const char* inputdir, const char* output_zipfile);
 int extract_zip_gh(const char* zip_file, const char* dest_path);
 
-int show_dia//LOG(int dialog_type, const char * format, ...);
+
 void init_progress_bar(const char* msg);
 void update_progress_bar(uint64_t progress, const uint64_t total_size, const char* msg);
 void end_progress_bar(void);
-#define show_message(...)	show_dia//LOG(0, __VA_ARGS__)
+
 
 int init_loading_screen(const char* msg);
 void stop_loading_screen();
