@@ -163,6 +163,6 @@ curlDownloadFile("https://download.samplelib.com/mp4/sample-30s.mp4", "/data/Gol
 
  }
 	http_end();
-	orbisPadFinish();
+
 	return 0;
 }
